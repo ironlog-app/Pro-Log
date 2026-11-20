@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ProLog v1.1 - 2분할 운동일지</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #334155;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-dark: #0284c7;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      padding-bottom: 84px;
+      user-select: none;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-v1 {
+      font-size: 11px;
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--primary);
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Program & Routine Selector */
+    select, input[type="text"], input[type="date"], textarea {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .routine-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .routine-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .routine-btn.active {
+      border-color: var(--primary);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .routine-btn .r-day {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .routine-btn .r-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .routine-btn .r-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #0f172a;
+    }
+
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    .btn-success {
+      background: var(--accent);
+      color: #052e16;
+    }
+
+    .btn-danger-outline {
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .btn-sm {
+      padding: 7px 10px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+
+    /* Exercise Card */
+    .ex-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .ex-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .ex-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .ex-guide {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(56, 189, 248, 0.14);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    /* Memo Box */
+    .memo-area {
+      margin-bottom: 10px;
+    }
+
+    .prev-memo-hint {
+      font-size: 11px;
+      color: var(--warning);
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: 8px;
+      padding: 6px 9px;
+      margin-bottom: 6px;
+      line-height: 1.4;
+      user-select: text;
+    }
+
+    .memo-input {
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--text);
+      border: 1px solid var(--border);
+      resize: vertical;
+      min-height: 36px;
+      user-select: text;
+    }
+
+    .memo-input::placeholder {
+      color: #64748b;
+    }
+
+    /* Set Row */
+    .set-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+
+    .set-block.done {
+      border-color: rgba(34, 197, 94, 0.5);
+      background: rgba(34, 197, 94, 0.06);
+    }
+
+    .prev-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .set-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .set-num {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-muted);
+      width: 26px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .step-btn {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+      width: 30px;
+      height: 34px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .step-btn:active {
+      background: var(--surface-2);
+    }
+
+    .num-input {
+      width: 100%;
+      min-width: 38px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      text-align: center;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 4px 0;
+      outline: none;
+      -moz-appearance: textfield;
+      user-select: text;
+    }
+
+    .num-input::-webkit-outer-spin-button,
+    .num-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .unit-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-right: 4px;
+      flex-shrink: 0;
+    }
+
+    .check-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .check-btn.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #052e16;
+    }
+
+    .ex-footer {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    /* Bottom Navigation */
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 12px;
+      z-index: 30;
+    }
+
+    .nav-item {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px 16px;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-icon {
+      font-size: 18px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* History & Calendar */
+    .history-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      user-select: text;
+    }
+
+    .history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .history-memo {
+      font-size: 11px;
+      color: var(--warning);
+      margin-left: 6px;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--surface-2);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f8fafc;
+      color: #0f172a;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 50;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 40;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .modal h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>ProLog <span class="badge-v1">v1.1</span></h1>
+    <div id="headerDate" style="font-size:12px; color:var(--text-muted); font-weight:700;"></div>
+  </header>
+
+  <div class="container">
+    <!-- VIEW 1: WORKOUT LOGGING -->
+    <div id="view-workout" class="view active">
+      <div class="card">
+        <div class="section-title">
+          <span>분할 프로그램 선택</span>
+          <button class="btn btn-secondary btn-sm" onclick="openNewProgramModal()">+ 새 분할 추가</button>
+        </div>
+        <select id="programSelect" onchange="onProgramChange()"></select>
+
+        <div class="section-title" style="margin-top:14px;">
+          <span>오늘의 루틴 선택</span>
+          <input type="date" id="workoutDate" style="width:auto; padding:4px 8px; font-size:12px;" />
+        </div>
+        <div id="routineGrid" class="routine-grid"></div>
+
+        <div class="action-row">
+          <button class="btn btn-primary" onclick="loadWorkout(true)">직전 기록 불러오기</button>
+          <button class="btn btn-secondary" onclick="loadWorkout(false)">기본 루틴으로 시작</button>
+        </div>
+      </div>
+
+      <div id="activeWorkoutHeader" style="display:none; margin-bottom:10px; justify-content:space-between; align-items:center;">
+        <div>
+          <span id="currentRoutineTitle" style="font-size:17px; font-weight:800;"></span>
+          <span id="loadModeBadge" class="tag" style="margin-left:6px;"></span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="openAddExerciseModal()">+ 종목 추가</button>
+      </div>
+
+      <div id="exerciseList"></div>
+
+      <div id="workoutBottomActions" style="display:none; flex-direction:column; gap:8px; margin-top:14px;">
+        <button class="btn btn-success" style="padding:14px; font-size:15px;" onclick="saveWorkoutLog()">오늘 운동 일지 저장하기</button>
+        <button class="btn btn-secondary" onclick="updateTemplateFromCurrent()">현재 종목/세트 구성으로 기본 루틴 덮어쓰기</button>
+      </div>
+    </div>
+
+    <!-- VIEW 2: HISTORY -->
+    <div id="view-history" class="view">
+      <div class="section-title">
+        <span>저장된 운동 기록</span>
+        <span id="historyCount" class="tag">0건</span>
+      </div>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- VIEW 3: SETTINGS / BACKUP -->
+    <div id="view-settings" class="view">
+      <div class="card">
+        <div class="section-title"><span>데이터 백업 및 복원 (필수)</span></div>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+          브라우저 캐시 삭제나 기기 변경 시 기록이 사라지지 않도록 주기적으로 백업 파일을 저장해 두세요.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button class="btn btn-primary" onclick="exportBackup()">백업 파일(.json) 다운로드</button>
+          <label class="btn btn-secondary" style="cursor:pointer;">
+            백업 파일 불러오기
+            <input type="file" accept=".json" onchange="importBackup(event)" style="display:none;" />
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span>초기화</span></div>
+        <button class="btn btn-danger-outline" style="width:100%; padding:10px;" onclick="resetToDefault()">기본 2분할 루틴으로 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchView('workout', this)">
+      <span class="nav-icon">🏋️</span>
+      <span>운동 기록</span>
+    </button>
+    <button class="nav-item" onclick="switchView('history', this)">
+      <span class="nav-icon">📅</span>
+      <span>지난 일지</span>
+    </button>
+    <button class="nav-item" onclick="switchView('settings', this)">
+      <span class="nav-icon">⚙️</span>
+      <span>백업/설정</span>
+    </button>
+  </nav>
+
+  <!-- ADD EXERCISE MODAL -->
+  <div id="addExModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>오늘 운동에 종목 추가</h3>
+      <div class="form-group">
+        <label>운동 종목명</label>
+        <input type="text" id="newExName" placeholder="예: 케이블 크로스오버" />
+      </div>
+      <div class="form-group">
+        <label>목표 가이드 (선택)</label>
+        <input type="text" id="newExGuide" placeholder="예: 3 × 12~15" />
+      </div>
+      <div class="form-group">
+        <label>초기 세트 수</label>
+        <input type="number" id="newExSets" value="3" min="1" max="10" style="background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px; width:100%;" />
+      </div>
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('addExModal')">취소</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="confirmAddExercise()">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW PROGRAM MODAL -->
+  <div id="newProgModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>새 분할 프로그램 만들기</h3>
+      <div class="form-group">
+        <label>프로그램 이름</label>
+        <input type="text" id="newProgName" placeholder="예: 3분할 (밀기/당기기/하체)" />
+      </div>
+      <div class="form-group">
+        <label>루틴 이름 목록 (쉼표로 구분)</label>
+        <input type="text" id="newProgRoutines" placeholder="예: 밀기 A, 당기기 A, 하체 A" />
+      </div>
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('newProgModal')">취소</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="confirmNewProgram()">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'prolog_v1_data';
+
+    const DEFAULT_DATA = {
+      activeProgramId: 'prog_2split',
+      programs: [
+        {
+          id: 'prog_2split',
+          name: '강력해진 2분할 루틴 (주 4일)',
+          routines: [
+            {
+              id: 'r_upper_a',
+              day: '월요일',
+              name: '상체 A',
+              desc: '가슴 고중량 / 등 고반복',
+              exercises: [
+                { name: '덤벨 풀오버', guide: '3 × 12', sets: 3 },
+                { name: '스미스 벤치프레스', guide: '탑 1 + 백오프 2', sets: 3 },
+                { name: '어시스티드 딥스', guide: '2 × 8~10', sets: 2 },
+                { name: '덤벨 오버헤드 익스텐션', guide: '3 × 10~12', sets: 3 },
+                { name: '랫풀다운', guide: '4 × 12', sets: 4 },
+                { name: '케이블 시티드로우', guide: '3 × 12', sets: 3 },
+                { name: '바벨컬', guide: '3 × 6~8', sets: 3 },
+                { name: '해머컬', guide: '3 × 10~12', sets: 3 }
+              ]
+            },
+            {
+              id: 'r_lower_a',
+              day: '화요일',
+              name: '하체 A',
+              desc: '대퇴사두 중심 + 어깨',
+              exercises: [
+                { name: '카프레이즈', guide: '1~2 × 12~15', sets: 2 },
+                { name: '덤벨 런지', guide: '3 × 10', sets: 3 },
+                { name: '스미스 스쿼트', guide: '탑 1 + 백오프 2', sets: 3 },
+                { name: '레그프레스', guide: '2 × 8~12', sets: 2 },
+                { name: '레그익스텐션', guide: '3 × 12~15', sets: 3 },
+                { name: '레그컬', guide: '2 × 12~15', sets: 2 },
+                { name: '힙 어브덕션', guide: '2 × 15~20', sets: 2 },
+                { name: '사이드 레터럴레이즈', guide: '4 × 20', sets: 4 },
+                { name: '숄더프레스', guide: '3 × 8~12', sets: 3 },
+                { name: '벤트오버 레터럴레이즈', guide: '3 × 12~15', sets: 3 }
+              ]
+            },
+            {
+              id: 'r_upper_b',
+              day: '목요일',
+              name: '상체 B',
+              desc: '등 고중량 / 가슴 고반복',
+              exercises: [
+                { name: '어시스티드 풀업', guide: '2 × 8', sets: 2 },
+                { name: '랫풀다운', guide: '3 × 8~10', sets: 3 },
+                { name: '인클라인 덤벨로우', guide: '3 × 8~10', sets: 3 },
+                { name: '케이블 시티드로우', guide: '3 × 10', sets: 3 },
+                { name: '덤벨컬', guide: '3 × 10~12', sets: 3 },
+                { name: '스미스 벤치프레스', guide: '3 × 10~12', sets: 3 },
+                { name: '인클라인 덤벨프레스', guide: '3 × 12', sets: 3 },
+                { name: '케이블 플라이', guide: '3 × 12~15', sets: 3 },
+                { name: '케이블 푸시다운', guide: '3 × 8~12', sets: 3 }
+              ]
+            },
+            {
+              id: 'r_lower_b',
+              day: '금요일',
+              name: '하체 B',
+              desc: '후면사슬 중심 + 어깨',
+              exercises: [
+                { name: '스미스 힙쓰러스터', guide: '2 × 15~20', sets: 2 },
+                { name: '스미스 데드리프트', guide: '탑 1 + 백오프 2', sets: 3 },
+                { name: '레그프레스', guide: '2 × 10~12', sets: 2 },
+                { name: '레그익스텐션', guide: '2 × 12~15', sets: 2 },
+                { name: '레그컬', guide: '3 × 10~15', sets: 3 },
+                { name: '힙 어브덕션', guide: '2 × 15~20', sets: 2 },
+                { name: '숄더프레스', guide: '3 × 8~12', sets: 3 },
+                { name: '사이드 레터럴레이즈', guide: '4 × 20', sets: 4 }
+              ]
+            }
+          ]
+        }
+      ],
+      logs: []
+    };
+
+    let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_DATA));
+    let selectedRoutineId = null;
+    let currentSession = null;
+
+    function saveStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function init() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('workoutDate').value = today;
+      document.getElementById('headerDate').textContent = today;
+      renderPrograms();
+    }
+
+    function renderPrograms() {
+      const sel = document.getElementById('programSelect');
+      sel.innerHTML = appData.programs.map(p =>
+        `<option value="${p.id}" ${p.id === appData.activeProgramId ? 'selected' : ''}>${escapeHtml(p.name)}</option>`
+      ).join('');
+      renderRoutines();
+    }
+
+    function onProgramChange() {
+      appData.activeProgramId = document.getElementById('programSelect').value;
+      selectedRoutineId = null;
+      saveStorage();
+      renderRoutines();
+    }
+
+    function getActiveProgram() {
+      return appData.programs.find(p => p.id === appData.activeProgramId) || appData.programs[0];
+    }
+
+    function renderRoutines() {
+      const prog = getActiveProgram();
+      if (!selectedRoutineId && prog.routines.length > 0) {
+        selectedRoutineId = prog.routines[0].id;
+      }
+      const grid = document.getElementById('routineGrid');
+      grid.innerHTML = prog.routines.map(r => `
+        <button class="routine-btn ${r.id === selectedRoutineId ? 'active' : ''}" onclick="selectRoutine('${r.id}')">
+          <div class="r-day">${escapeHtml(r.day || '루틴')}</div>
+          <div class="r-name">${escapeHtml(r.name)}</div>
+          <div class="r-desc">${escapeHtml(r.desc || r.exercises.length + '종목')}</div>
+        </button>
+      `).join('');
+    }
+
+    function selectRoutine(rId) {
+      selectedRoutineId = rId;
+      renderRoutines();
+    }
+
+    function loadWorkout(usePrevious) {
+      const prog = getActiveProgram();
+      const routine = prog.routines.find(r => r.id === selectedRoutineId);
+      if (!routine) return;
+
+      const prevLog = [...appData.logs]
+        .reverse()
+        .find(l => l.routineId === routine.id);
+
+      let exercisesCopy = [];
+
+      if (usePrevious && prevLog) {
+        exercisesCopy = JSON.parse(JSON.stringify(prevLog.exercises)).map(ex => ({
+          name: ex.name,
+          guide: ex.guide || '',
+          memo: '',
+          prevMemo: ex.memo || '',
+          sets: ex.sets.map(s => ({
+            weight: s.weight,
+            reps: s.reps,
+            prevWeight: s.weight,
+            prevReps: s.reps,
+            done: false
+          }))
+        }));
+        showToast('직전 기록을 복사해 불러왔습니다');
+      } else {
+        if (usePrevious && !prevLog) {
+          showToast('직전 기록이 없어 기본 루틴으로 시작합니다');
+        } else {
+          showToast('기본 루틴 템플릿을 불러왔습니다');
+        }
+        exercisesCopy = routine.exercises.map(ex => {
+          const prevEx = prevLog ? prevLog.exercises.find(pe => pe.name === ex.name) : null;
+          const setsArr = [];
+          for (let i = 0; i < ex.sets; i++) {
+            const prevSet = prevEx && prevEx.sets[i] ? prevEx.sets[i] : null;
+            setsArr.push({
+              weight: prevSet ? prevSet.weight : 0,
+              reps: prevSet ? prevSet.reps : 10,
+              prevWeight: prevSet ? prevSet.weight : null,
+              prevReps: prevSet ? prevSet.reps : null,
+              done: false
+            });
+          }
+          return {
+            name: ex.name,
+            guide: ex.guide || '',
+            memo: '',
+            prevMemo: prevEx && prevEx.memo ? prevEx.memo : '',
+            sets: setsArr
+          };
+        });
+      }
+
+      currentSession = {
+        programId: prog.id,
+        programName: prog.name,
+        routineId: routine.id,
+        routineName: routine.name,
+        exercises: exercisesCopy
+      };
+
+      document.getElementById('activeWorkoutHeader').style.display = 'flex';
+      document.getElementById('currentRoutineTitle').textContent = `${routine.name} (${routine.desc || ''})`;
+      document.getElementById('loadModeBadge').textContent = (usePrevious && prevLog) ? '직전 기록 기반' : '기본 템플릿';
+      document.getElementById('workoutBottomActions').style.display = 'flex';
+      renderSession();
+    }
+
+    function renderSession() {
+      const list = document.getElementById('exerciseList');
+      if (!currentSession) {
+        list.innerHTML = '';
+        return;
+      }
+
+      list.innerHTML = currentSession.exercises.map((ex, exIdx) => `
+        <div class="ex-card">
+          <div class="ex-header">
+            <div>
+              <div class="ex-title">${escapeHtml(ex.name)}</div>
+              ${ex.guide ? `<span class="ex-guide">${escapeHtml(ex.guide)}</span>` : ''}
+            </div>
+            <button class="btn btn-danger-outline" onclick="removeExercise(${exIdx})">종목 삭제</button>
+          </div>
+
+          <div class="memo-area">
+            ${ex.prevMemo ? `
+              <div class="prev-memo-hint">📌 직전 특이사항: ${escapeHtml(ex.prevMemo)}</div>
+            ` : ''}
+            <textarea rows="1" class="memo-input"
+              placeholder="특이사항 메모 (예: 의자 높이 3칸, 그립 너비, 왼쪽 어깨 자극/통증 등)"
+              oninput="updateMemo(${exIdx}, this.value)">${escapeHtml(ex.memo || '')}</textarea>
+          </div>
+
+          ${ex.sets.map((s, sIdx) => `
+            <div class="set-block ${s.done ? 'done' : ''}">
+              ${s.prevWeight !== null ? `
+                <div class="prev-hint">
+                  <span>↳ 직전: ${s.prevWeight}kg × ${s.prevReps}회</span>
+                  <span>볼륨 ${(s.weight * s.reps).toLocaleString()}kg</span>
+                </div>
+              ` : `
+                <div class="prev-hint">
+                  <span>신규 세트</span>
+                  <span>볼륨 ${(s.weight * s.reps).toLocaleString()}kg</span>
+                </div>
+              `}
+              <div class="set-controls">
+                <span class="set-num">${sIdx + 1}</span>
+                
+                <div class="stepper">
+                  <button class="step-btn" onclick="stepVal(${exIdx}, ${sIdx}, 'weight', -2.5)">−</button>
+                  <input type="number" step="0.5" class="num-input" value="${s.weight}"
+                    onfocus="this.select()"
+                    onchange="updateVal(${exIdx}, ${sIdx}, 'weight', this.value)" />
+                  <span class="unit-label">kg</span>
+                  <button class="step-btn" onclick="stepVal(${exIdx}, ${sIdx}, 'weight', 2.5)">+</button>
+                </div>
+
+                <div class="stepper">
+                  <button class="step-btn" onclick="stepVal(${exIdx}, ${sIdx}, 'reps', -1)">−</button>
+                  <input type="number" class="num-input" value="${s.reps}"
+                    onfocus="this.select()"
+                    onchange="updateVal(${exIdx}, ${sIdx}, 'reps', this.value)" />
+                  <span class="unit-label">회</span>
+                  <button class="step-btn" onclick="stepVal(${exIdx}, ${sIdx}, 'reps', 1)">+</button>
+                </div>
+
+                <button class="check-btn ${s.done ? 'checked' : ''}" onclick="toggleDone(${exIdx}, ${sIdx})">✓</button>
+              </div>
+            </div>
+          `).join('')}
+
+          <div class="ex-footer">
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="addSet(${exIdx})">+ 세트 추가</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="removeSet(${exIdx})">− 세트 삭제</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateMemo(exIdx, val) {
+      currentSession.exercises[exIdx].memo = val;
+    }
+
+    function stepVal(exIdx, sIdx, field, delta) {
+      const cur = parseFloat(currentSession.exercises[exIdx].sets[sIdx][field]) || 0;
+      const next = Math.max(0, Math.round((cur + delta) * 10) / 10);
+      currentSession.exercises[exIdx].sets[sIdx][field] = next;
+      renderSession();
+    }
+
+    function updateVal(exIdx, sIdx, field, raw) {
+      const val = Math.max(0, parseFloat(raw) || 0);
+      currentSession.exercises[exIdx].sets[sIdx][field] = val;
+      renderSession();
+    }
+
+    function toggleDone(exIdx, sIdx) {
+      currentSession.exercises[exIdx].sets[sIdx].done = !currentSession.exercises[exIdx].sets[sIdx].done;
+      renderSession();
+    }
+
+    function addSet(exIdx) {
+      const sets = currentSession.exercises[exIdx].sets;
+      const last = sets[sets.length - 1] || { weight: 0, reps: 10 };
+      sets.push({
+        weight: last.weight,
+        reps: last.reps,
+        prevWeight: null,
+        prevReps: null,
+        done: false
+      });
+      renderSession();
+    }
+
+    function removeSet(exIdx) {
+      const sets = currentSession.exercises[exIdx].sets;
+      if (sets.length <= 1) {
+        showToast('최소 1세트는 유지해야 합니다');
+        return;
+      }
+      sets.pop();
+      renderSession();
+    }
+
+    function removeExercise(exIdx) {
+      currentSession.exercises.splice(exIdx, 1);
+      renderSession();
+    }
+
+    function openAddExerciseModal() {
+      document.getElementById('newExName').value = '';
+      document.getElementById('newExGuide').value = '';
+      document.getElementById('newExSets').value = 3;
+      document.getElementById('addExModal').classList.add('open');
+    }
+
+    function confirmAddExercise() {
+      const name = document.getElementById('newExName').value.trim();
+      const guide = document.getElementById('newExGuide').value.trim();
+      const count = Math.max(1, parseInt(document.getElementById('newExSets').value) || 3);
+      if (!name) return;
+
+      const sets = Array.from({ length: count }, () => ({
+        weight: 0, reps: 10, prevWeight: null, prevReps: null, done: false
+      }));
+
+      currentSession.exercises.push({ name, guide, memo: '', prevMemo: '', sets });
+      closeModal('addExModal');
+      renderSession();
+      showToast(`${name} 추가 완료`);
+    }
+
+    function updateTemplateFromCurrent() {
+      if (!currentSession) return;
+      const prog = getActiveProgram();
+      const routine = prog.routines.find(r => r.id === currentSession.routineId);
+      if (!routine) return;
+
+      routine.exercises = currentSession.exercises.map(ex => ({
+        name: ex.name,
+        guide: ex.guide,
+        sets: ex.sets.length
+      }));
+      saveStorage();
+      showToast('기본 루틴 구성이 업데이트되었습니다');
+    }
+
+    function saveWorkoutLog() {
+      if (!currentSession) return;
+      const dateStr = document.getElementById('workoutDate').value || new Date().toISOString().split('T')[0];
+
+      const newLog = {
+        id: 'log_' + Date.now(),
+        date: dateStr,
+        programName: currentSession.programName,
+        routineId: currentSession.routineId,
+        routineName: currentSession.routineName,
+        exercises: JSON.parse(JSON.stringify(currentSession.exercises))
+      };
+
+      appData.logs.push(newLog);
+      saveStorage();
+      showToast(`${dateStr} 운동 일지가 저장되었습니다!`);
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      document.getElementById('historyCount').textContent = `${appData.logs.length}건`;
+
+      if (appData.logs.length === 0) {
+        list.innerHTML = `<div class="card" style="text-align:center; color:var(--text-muted); padding:30px;">아직 저장된 운동 기록이 없습니다.</div>`;
+        return;
+      }
+
+      const sorted = [...appData.logs].reverse();
+      list.innerHTML = sorted.map(log => {
+        const totalVol = log.exercises.reduce((acc, ex) =>
+          acc + ex.sets.reduce((sAcc, s) => sAcc + (s.weight * s.reps), 0), 0
+        );
+        return `
+          <div class="history-item">
+            <div class="history-top">
+              <div>
+                <strong style="font-size:15px;">${escapeHtml(log.date)} · ${escapeHtml(log.routineName)}</strong>
+                <div style="font-size:11px; color:var(--text-muted);">${escapeHtml(log.programName)}</div>
+              </div>
+              <button class="btn btn-danger-outline" onclick="deleteLog('${log.id}')">삭제</button>
+            </div>
+            <div style="font-size:12px; color:var(--primary); font-weight:700; margin-bottom:8px;">
+              총 볼륨: ${totalVol.toLocaleString()} kg
+            </div>
+            ${log.exercises.map(ex => `
+              <div style="font-size:12px; margin-bottom:6px; color:var(--text);">
+                <span style="font-weight:700;">${escapeHtml(ex.name)}:</span>
+                <span style="color:var(--text-muted);">
+                  ${ex.sets.map(s => `${s.weight}kg×${s.reps}`).join(' / ')}
+                </span>
+                ${ex.memo && ex.memo.trim() ? `<span class="history-memo">📌 ${escapeHtml(ex.memo.trim())}</span>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteLog(logId) {
+      appData.logs = appData.logs.filter(l => l.id !== logId);
+      saveStorage();
+      renderHistory();
+      showToast('기록이 삭제되었습니다');
+    }
+
+    function openNewProgramModal() {
+      document.getElementById('newProgName').value = '';
+      document.getElementById('newProgRoutines').value = '';
+      document.getElementById('newProgModal').classList.add('open');
+    }
+
+    function confirmNewProgram() {
+      const name = document.getElementById('newProgName').value.trim();
+      const rText = document.getElementById('newProgRoutines').value.trim();
+      if (!name || !rText) return;
+
+      const rNames = rText.split(',').map(s => s.trim()).filter(Boolean);
+      const newProg = {
+        id: 'prog_' + Date.now(),
+        name,
+        routines: rNames.map((rn, idx) => ({
+          id: 'r_' + Date.now() + '_' + idx,
+          day: `루틴 ${idx + 1}`,
+          name: rn,
+          desc: '사용자 정의 루틴',
+          exercises: [
+            { name: '기본 종목 1', guide: '3 × 10', sets: 3 }
+          ]
+        }))
+      };
+
+      appData.programs.push(newProg);
+      appData.activeProgramId = newProg.id;
+      selectedRoutineId = newProg.routines[0].id;
+      saveStorage();
+      closeModal('newProgModal');
+      renderPrograms();
+      showToast('새 분할 프로그램이 생성되었습니다');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function switchView(viewName, btn) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + viewName).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      btn.classList.add('active');
+
+      if (viewName === 'history') renderHistory();
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ProLog_Backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('백업 파일이 다운로드되었습니다');
+    }
+
+    function importBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.programs && parsed.logs) {
+            appData = parsed;
+            saveStorage();
+            renderPrograms();
+            showToast('백업 데이터를 성공적으로 복원했습니다');
+          } else {
+            showToast('올바른 백업 파일이 아닙니다');
+          }
+        } catch {
+          showToast('파일을 읽는 중 오류가 발생했습니다');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetToDefault() {
+      appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      selectedRoutineId = null;
+      currentSession = null;
+      saveStorage();
+      renderPrograms();
+      document.getElementById('activeWorkoutHeader').style.display = 'none';
+      document.getElementById('workoutBottomActions').style.display = 'none';
+      renderSession();
+      showToast('기본 2분할 루틴으로 초기화되었습니다');
+    }
+
+    init();
+  </script>
+</body>
+</html>
